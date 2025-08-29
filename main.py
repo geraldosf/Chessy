@@ -1,5 +1,6 @@
 import pygame
-from chess_pos import chess_pos
+from objects.chess_pos import chess_pos
+from objects.pieces import *
 
 
 
@@ -8,7 +9,11 @@ def mount_table():
 
     for i in range(8):
         for j in range(8):
-            table[i].append(chess_pos((100 * (i + 1), 100 * (j + 1), 100, 100)))
+            pos = (100 * (i + 1), 100 * (j + 1))
+            height = 100
+            width = 100
+            label = chr(97 + i) + str(8 - j)
+            table[i].append(chess_pos(label, pos, height, width))
 
     return table
 
@@ -33,8 +38,12 @@ while running:
         for j in range(8):
             if ((i + j) % 2 != 1):
                 pygame.draw.rect(screen, "white", table[i][j].rect)
+                if table[i][j].piece != None:
+                    screen.blit(table[i][j].piece.Image, table[i][j].image_pos)
             else:
                 pygame.draw.rect(screen, "brown", table[i][j].rect)
+                if table[i][j].piece != None:
+                    screen.blit(table[i][j].piece.Image, table[i][j].image_pos)
     
 
     pygame.display.flip()
