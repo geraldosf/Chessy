@@ -1,50 +1,64 @@
 import pygame
-from objects.chess_pos import chess_pos
 from objects.pieces import *
-
-
-
-def mount_table():
-    table = [[], [], [], [], [], [], [], []]
-
-    for i in range(8):
-        for j in range(8):
-            pos = (100 * (i + 1), 100 * (j + 1))
-            height = 100
-            width = 100
-            label = chr(97 + i) + str(8 - j)
-            table[i].append(chess_pos(label, pos, height, width))
-
-    return table
-
-
+from function import *
 
 pygame.init()
 screen = pygame.display.set_mode((1000,1000))
 clock = pygame.time.Clock()
 running = True
 
-table = mount_table()
+tabletop = mount_tabletop()
+
+movements = None
+selected = None
 
 while running:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONUP:
+
+            moved = False
+            
+            if selected:
+                movements = calculate_moves(selected.piece, tabletop)
+                for move in movements:
+                    if tabletop[move[0]][move[1]].rect.collidepoint(pygame.mouse.get_pos()) == True:
+                        move_piece(selected, tabletop[move[0]][move[1]])
+                        selected = None
+                        movements = None
+                        moved = True
+                        break
+                
+            if moved == False:
+            
+                for i in range(len(tabletop)):
+                    for j in range(8):
+                        if tabletop[i][j].rect.collidepoint(pygame.mouse.get_pos()) == True:
+                            
+                            if tabletop[i][j].piece != None:
+                                selected = tabletop[i][j]
+                                movements = calculate_moves(selected.piece, tabletop)
+
 
     screen.fill("black")
 
     for i in range(8):
         for j in range(8):
             if ((i + j) % 2 != 1):
-                pygame.draw.rect(screen, "white", table[i][j].rect)
-                if table[i][j].piece != None:
-                    screen.blit(table[i][j].piece.Image, table[i][j].image_pos)
+                pygame.draw.rect(screen, "white", tabletop[i][j].rect)
+                if tabletop[i][j].piece != None:
+                    screen.blit(tabletop[i][j].piece.Image, tabletop[i][j].image_pos)
             else:
-                pygame.draw.rect(screen, "brown", table[i][j].rect)
-                if table[i][j].piece != None:
-                    screen.blit(table[i][j].piece.Image, table[i][j].image_pos)
+                pygame.draw.rect(screen, "brown", tabletop[i][j].rect)
+                if tabletop[i][j].piece != None:
+                    screen.blit(tabletop[i][j].piece.Image, tabletop[i][j].image_pos)
     
+    if movements:
+        for moves in movements:
+            square = tabletop[moves[0]][moves[1]]
+            pygame.draw.circle(screen, "blue", square.pos_center, 11)        
 
     pygame.display.flip()
 
