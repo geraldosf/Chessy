@@ -2,14 +2,16 @@ import pygame
 from objects.pieces import *
 from function import *
 
-pygame.init()
-screen = pygame.display.set_mode((1000,1000))
-clock = pygame.time.Clock()
-running = True
+pygame.init()  # Start Pygame.
+screen = pygame.display.set_mode((1200,1000))  # Define the screen Surface width and height.
+clock = pygame.time.Clock()  # Define the clock
+running = True  # Condition to game continues.
 
-tabletop = mount_tabletop()
+tabletop = mount_tabletop()  # Calls a function to start all tabletop squares.
+refresh_moves(tabletop)
 
-movements = None
+calculate_moves(tabletop[1][0].piece, tabletop)
+
 selected = None
 
 while running:
@@ -22,12 +24,11 @@ while running:
             moved = False
             
             if selected:
-                movements = calculate_moves(selected.piece, tabletop)
+                movements = selected.piece.moves
                 for move in movements:
                     if tabletop[move[0]][move[1]].rect.collidepoint(pygame.mouse.get_pos()) == True:
-                        move_piece(selected, tabletop[move[0]][move[1]])
+                        move_piece(selected, tabletop[move[0]][move[1]], tabletop)
                         selected = None
-                        movements = None
                         moved = True
                         break
                 
@@ -39,7 +40,7 @@ while running:
                             
                             if tabletop[i][j].piece != None:
                                 selected = tabletop[i][j]
-                                movements = calculate_moves(selected.piece, tabletop)
+                                movements = selected.piece.moves
 
 
     screen.fill("black")
@@ -55,14 +56,14 @@ while running:
                 if tabletop[i][j].piece != None:
                     screen.blit(tabletop[i][j].piece.Image, tabletop[i][j].image_pos)
     
-    if movements:
+    if selected:
         for moves in movements:
             square = tabletop[moves[0]][moves[1]]
             pygame.draw.circle(screen, "blue", square.pos_center, 11)        
 
     pygame.display.flip()
 
-    clock.tick(60)
+    clock.tick(30)
 
 pygame.quit()
 

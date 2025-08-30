@@ -10,6 +10,7 @@ class king:
     side: str  # Define team side of the piece.
     matrix_pos: tuple  # Define identification in tabletop list.
     vector_moves: list = field(init=False)  # Define how the piece can move.
+    moves: list = field(init=False)
     Image: object = field(init=False)  # Define the pygame image object.
 
     def __post_init__(self):
@@ -32,6 +33,7 @@ class queen():
     side: str  # Define team side of the piece.
     matrix_pos: tuple  # Define identification in tabletop list.
     vector_moves: list = field(init=False)  # Define how the piece can move.
+    moves: list = field(init=False)
     Image: object = field(init=False)  # Define the pygame image object.
 
     def __post_init__(self):
@@ -65,7 +67,7 @@ class knight():
             self.Image = image.load("pieces_image/black-knight.png")
 
         # This initialize vector_moves
-        self.vector_moves = [(1, 0), (1, 1), (0, 1)]
+        self.vector_moves = [(0, 1), (1, 1), (1, 0), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)]
 
 
 @dataclass
