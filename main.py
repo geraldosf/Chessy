@@ -11,8 +11,9 @@ tabletop = mount_tabletop()  # Calls a function to start all tabletop squares.
 refresh_moves(tabletop)
 
 calculate_moves(tabletop[1][0].piece, tabletop)
-
 selected = None
+
+turn = "white"
 
 while running:
 
@@ -30,19 +31,22 @@ while running:
                         move_piece(selected, tabletop[move[0]][move[1]], tabletop)
                         selected = None
                         moved = True
+                        if turn == "white":
+                            turn = "black"
+                        else:
+                            turn = "white"
                         break
                 
             if moved == False:
             
                 for i in range(len(tabletop)):
                     for j in range(8):
-                        if tabletop[i][j].rect.collidepoint(pygame.mouse.get_pos()) == True:
+                        if tabletop[i][j].rect.collidepoint(pygame.mouse.get_pos()) == True and tabletop[i][j].piece != None and tabletop[i][j].piece.side == turn:
                             
                             if tabletop[i][j].piece != None:
                                 selected = tabletop[i][j]
                                 movements = selected.piece.moves
-
-
+    
     screen.fill("black")
 
     for i in range(8):

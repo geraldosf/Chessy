@@ -12,7 +12,7 @@ def mount_tabletop():
             height = 115  # Height of the square.
             width = 120  # Width of the square.
             padding_x = 20  # Left padding.
-            padding_y = 25  # Top padding.
+            padding_y = 45  # Top padding.
             pos = (padding_x + width * j, padding_y + height * i)  # Calculate the right position of each square.
             label = chr(97 + j) + str(8 - i)  # Calculate the label of the square.
             matrix_pos = (i, j)  # Define position in tabletop list.
@@ -30,7 +30,7 @@ def refresh_moves(tabletop: list) -> None:
                 square.piece.moves = calculate_moves(square.piece, tabletop)
 
 
-def calculate_moves(piece: object, tabletop: list):
+def calculate_moves(piece: object, tabletop: list, capture: bool = False):
 
     """Function that calculate legal moves."""
 
@@ -38,6 +38,11 @@ def calculate_moves(piece: object, tabletop: list):
     vector = piece.vector_moves  # Define in which directions the piece can move.
 
     moves = []  # Initialize legal moves.
+
+    king_pos = find_king_pos(tabletop, piece.side)
+
+    threat_list = get_threat_list(tabletop, piece.side)
+
 
     for i in range(len(vector)):
         j = 0
@@ -68,7 +73,6 @@ def calculate_moves(piece: object, tabletop: list):
                 
 
                 possible_pos = (pos[0] + y_movement, pos[1] + x_movement)
-                print(possible_pos)
             else:
                 possible_pos = (pos[0] + (j + 1) * vector[i][0], pos[1] + (j + 1) * vector[i][1])
 
@@ -78,20 +82,31 @@ def calculate_moves(piece: object, tabletop: list):
             elif possible_pos[0] < 0 or possible_pos[1] < 0:
                 break
 
+            possible_square = tabletop[possible_pos[0]][possible_pos[1]]
+            
             # Check if there is some piece in the position
-            if tabletop[possible_pos[0]][possible_pos[1]].piece is not None:
-                break
+            if possible_square.piece != None:
+                if piece.side == possible_square.piece.side:
+                    break
+                if possible_square.piece.name == "king":
+                    if possible_square.piece.side != piece.side:
+                        possible_square.piece.in_check.append(piece)
+                        print("Check")
+                    break
 
             moves.append(possible_pos)  # Add to a list of legal moves.
             j += 1
 
+            if possible_square.piece != None:
+                break
+
             # Pawn is a special piece.
-            if piece.__class__.__name__ == "pawn":
+            if piece.name == "pawn":
                 if possible_pos[0] == 5 or possible_pos[0] == 2:
                     continue
                 else:
                     break
-            elif piece.__class__.__name__ == "knight":
+            elif piece.name == "knight" or piece.name == "king":
                 break
 
     return moves
@@ -105,3 +120,30 @@ def move_piece(square: object, position: object, tabletop: object):
     position.piece = square.piece
     square.piece = None
     refresh_moves(tabletop)
+
+
+def find_king_pos(tabletop: list, side: str):
+
+    for i in range(8):
+        for j in range(8):
+            square = tabletop[i][j]
+
+            if square.piece != None and square.piece.name == "king":
+                if square.piece.side == side:
+                    return square.piece
+                
+
+def get_threat_list(tabletop: list, ops_side: str):
+
+    threat_list = []
+
+    for i in range(8):
+        for j in range(8):
+            square = tabletop[i][j]
+
+            if square.piece != None and square.piece.side != ops_side:
+                for vector in square.piece.moves:
+                    threat_list.append(vector)
+
+    return threat_list
+                
